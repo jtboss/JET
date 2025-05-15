@@ -1,41 +1,29 @@
 "use client";
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-// Modern abstract shape component from AnimatedHero
-const AbstractShape = ({ 
+// Subtle background shape component
+const SubtleShape = ({ 
   className, 
   delay = 0,
-  color = "bg-primary/40",
-  blur = "blur-[80px]",
-  pulseIntensity = 0
+  color = "bg-slate-100",
 }: { 
   className?: string; 
   delay?: number;
   color?: string;
-  blur?: string;
-  pulseIntensity?: number;
 }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ 
-        opacity: 0.8, 
-        scale: pulseIntensity ? [1, 1 + pulseIntensity * 0.05, 1] : 1 
-      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 0.7 }}
       transition={{
         duration: 1.2,
         delay,
         ease: [0.22, 1, 0.36, 1],
-        scale: {
-          duration: pulseIntensity ? 8 : 0,
-          repeat: Infinity,
-          repeatType: "reverse",
-        }
       }}
-      className={cn("absolute rounded-full", blur, color, className)}
+      className={cn("absolute rounded-full blur-xl", color, className)}
     />
   );
 };
@@ -49,8 +37,8 @@ type ConsistentBackgroundProps = {
 }
 
 /**
- * ConsistentBackground applies the hero section background style consistently across the website.
- * It includes gradient overlays, abstract shapes, and an optional wave divider.
+ * ConsistentBackground applies a clean, professional background style
+ * with subtle shapes and optional wave divider.
  */
 export function ConsistentBackground({
   children,
@@ -59,61 +47,43 @@ export function ConsistentBackground({
   intensity = 'medium',
   containerClassName,
 }: ConsistentBackgroundProps) {
-  // Adjust opacity based on intensity
-  const overlayOpacity = intensity === 'light' ? 'opacity-40' : 
-                          intensity === 'medium' ? 'opacity-80' : 
-                          'opacity-100';
-  
-  // Adjust blur intensity for shapes
-  const blurIntensity = intensity === 'light' ? 'blur-[50px]' : 
-                        intensity === 'medium' ? 'blur-[80px]' : 
-                        'blur-[120px]';
+  // Get background color based on intensity - using more interesting gradients
+  const bgColor = intensity === 'light' 
+    ? 'bg-gradient-to-br from-blue-50 to-slate-100' 
+    : intensity === 'medium' 
+      ? 'bg-gradient-to-br from-blue-100 to-slate-200' 
+      : 'bg-gradient-to-br from-blue-200 to-slate-300';
 
   return (
-    <section className={cn("relative overflow-hidden bg-tertiary/10", className)}>
-      {/* Gradient background overlay */}
-      <div className={cn("absolute inset-0 bg-gradient-radial from-tertiary/40 via-tertiary/20 to-white", overlayOpacity)}></div>
-      
-      {/* Abstract background shapes */}
+    <section className={cn("relative overflow-hidden", bgColor, className)}>
+      {/* Subtle background shapes - visible in all intensities now */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Main primary gradient */}
-        <AbstractShape 
+        {/* Enhanced, more visible shapes */}
+        <SubtleShape 
           delay={0.2} 
           className="w-[600px] h-[600px] -left-[200px] top-[5%]"
-          color="bg-gradient-to-br from-primary/30 to-primary/5"
-          blur={blurIntensity}
-          pulseIntensity={1}
+          color={intensity === 'light' ? "bg-blue-200/30" : intensity === 'medium' ? "bg-blue-300/30" : "bg-blue-400/30"}
         />
         
-        {/* Secondary gradient element */}
-        <AbstractShape 
+        <SubtleShape 
           delay={0.4} 
           className="w-[500px] h-[500px] -right-[100px] top-[15%]"
-          color="bg-gradient-to-tl from-secondary/25 to-secondary/5"
-          blur={blurIntensity}
-          pulseIntensity={2}
+          color={intensity === 'light' ? "bg-teal-200/30" : intensity === 'medium' ? "bg-teal-300/30" : "bg-teal-400/30"}
         />
         
-        {/* Tertiary color smaller shape */}
-        <AbstractShape 
+        <SubtleShape 
           delay={0.3} 
           className="w-[300px] h-[300px] left-[10%] bottom-[15%]"
-          color="bg-gradient-to-r from-tertiary/40 to-tertiary/20"
-          blur={blurIntensity}
-          pulseIntensity={1.5}
+          color={intensity === 'light' ? "bg-indigo-200/30" : intensity === 'medium' ? "bg-indigo-300/30" : "bg-indigo-400/30"}
         />
-        
-        {/* Extra shape for depth */}
-        <AbstractShape 
+
+        {/* Adding a few more shapes for a richer background */}
+        <SubtleShape 
           delay={0.5} 
-          className="w-[250px] h-[250px] right-[20%] bottom-[10%]"
-          color="bg-gradient-to-l from-primary/15 to-secondary/10"
-          blur={blurIntensity}
+          className="w-[400px] h-[400px] right-[15%] bottom-[10%]"
+          color={intensity === 'light' ? "bg-blue-200/20" : intensity === 'medium' ? "bg-blue-300/20" : "bg-blue-400/20"}
         />
       </div>
-
-      {/* Subtle grid pattern overlay */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
 
       <div className={cn("relative z-10", containerClassName)}>
         {children}

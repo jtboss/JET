@@ -1,287 +1,259 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import Link from "next/link"
+import { Button } from "@/components/ui/button-wrapper"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { AnimatedHero } from "@/components/ui/AnimatedHero"
+import { useState, useEffect } from "react";
+import OurServices from "@/components/OurServices"
+import { Badge } from "@/components/ui/badge"
+import { ArrowRightIcon, Menu, X } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { BenefitsSection } from "@/components/BenefitsSection"
+import { ConsistentBackground } from '@/components/ui/ConsistentBackground'
+import { ContactForm } from '@/components/ContactForm'
+import { smoothScrollTo } from "@/lib/utils"
 
 export default function Home() {
-  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Handle smooth scrolling for anchor links
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest('a');
+      
+      if (anchor && anchor.hash && anchor.href.includes(window.location.pathname)) {
+        e.preventDefault();
+        
+        const targetId = anchor.hash.slice(1);
+        
+        // Close mobile menu if open
+        setMobileMenuOpen(false);
+        
+        // Use our utility function for consistent smooth scrolling
+        smoothScrollTo(targetId, 80); // 80px offset to account for fixed header
+      }
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    // Add event listener
+    document.addEventListener('click', handleAnchorClick);
+    
+    // Handle initial hash in URL
+    if (window.location.hash) {
+      const targetId = window.location.hash.slice(1);
+      
+      setTimeout(() => {
+        smoothScrollTo(targetId, 80); // 80px offset to account for fixed header
+      }, 500);
+    }
+    
+    return () => {
+      document.removeEventListener('click', handleAnchorClick);
+    };
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-blue-50/30">
-      {/* Navigation */}
-      <header className={`w-full py-5 px-6 fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 shadow-md backdrop-blur-sm' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="font-bold text-3xl bg-gradient-to-r from-blue-600 to-cyan-500 text-transparent bg-clip-text">JET</div>
-          <nav className="hidden md:flex space-x-8 items-center">
-            <Link href="#services" className="text-gray-700 hover:text-blue-600 transition-colors">Services</Link>
-            <Link href="#benefits" className="text-gray-700 hover:text-blue-600 transition-colors">Benefits</Link>
-            <Link href="#contact" className="text-gray-700 hover:text-blue-600 transition-colors">Contact</Link>
-            <Link href="#contact" className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-full px-6 py-2.5 font-medium shadow-lg hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-0.5">
-              Let's Work Together
-            </Link>
-          </nav>
-          <button className="md:hidden text-gray-700 focus:outline-none">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
+    <div className="flex min-h-screen flex-col">
+      {/* Header/Navigation */}
+      <header className="fixed top-0 z-50 w-full bg-white border-b border-slate-200">
+        <div className="container mx-auto">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center">
+              <Link href="/" className="font-bold text-2xl text-black">JET</Link>
+            </div>
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-8">
+              {["Services", "Benefits", "Contact"].map((item) => (
+                <Link 
+                  key={item}
+                  href={`#${item.toLowerCase().replace(/\s+/g, '-')}`} 
+                  className="text-sm font-medium text-slate-600 hover:text-primary animated-underline"
+                >
+                  {item}
+                </Link>
+              ))}
+            </nav>
+            
+            {/* Mobile menu button */}
+            <div className="flex md:hidden">
+              <button
+                type="button"
+                className="text-slate-700 hover:text-slate-900"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                <span className="sr-only">Open main menu</span>
+                {mobileMenuOpen ? (
+                  <X className="h-6 w-6" aria-hidden="true" />
+                ) : (
+                  <Menu className="h-6 w-6" aria-hidden="true" />
+                )}
+              </button>
+            </div>
+            
+            <div className="hidden md:flex items-center">
+              <Button 
+                size="sm"
+                className="bg-black text-white hover:shadow-[0_0_0_3px_rgba(59,130,246,0.3)] transition-shadow rounded-full"
+              >
+                <Link href="#contact" className="flex items-center w-full h-full">
+                  Let's Work Together
+                </Link>
+              </Button>
+            </div>
+          </div>
         </div>
+        
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-b border-slate-200 py-4">
+            <div className="container mx-auto space-y-1">
+              {["Services", "Benefits", "Contact"].map((item) => (
+                <Link
+                  key={item}
+                  href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="block px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-primary rounded-md"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item}
+                </Link>
+              ))}
+              <div className="pt-2 pb-1">
+                <Button className="w-full justify-center bg-black text-white hover:shadow-[0_0_0_3px_rgba(59,130,246,0.3)] transition-shadow rounded-full">
+                  <Link href="#contact" className="flex items-center w-full h-full">
+                    Let's Work Together
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Hero Section */}
-      <section className="w-full bg-gradient-to-br from-blue-50 via-white to-blue-50/10 pt-32 pb-24 overflow-hidden relative">
-        <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-[600px] h-[600px] bg-gradient-to-br from-blue-400/20 to-cyan-300/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-[600px] h-[600px] bg-gradient-to-tr from-blue-500/10 to-purple-300/5 rounded-full blur-3xl"></div>
-        
-        <div className="max-w-7xl mx-auto px-6 relative">
-          <div className="flex flex-col items-center md:items-start max-w-4xl mx-auto">
-            <div className="inline-flex items-center bg-blue-100 text-blue-700 rounded-full px-4 py-1.5 mb-10 shadow-sm">
-              <div className="bg-blue-600 rounded-full w-4 h-4 mr-2"></div>
-              <span className="font-medium">Automate More Simple</span>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-bold text-center md:text-left md:leading-tight mb-8 bg-gradient-to-br from-gray-900 via-blue-800 to-gray-900 text-transparent bg-clip-text">
-              Automate<br />
-              Your Business<br />
-              <span className="text-blue-600">Save Hours Every<br />
-              Week</span>
-            </h1>
-            
-            <p className="text-xl text-gray-700 text-center md:text-left max-w-3xl mb-12 leading-relaxed">
-              Streamline operations, reduce manual tasks, and scale faster with
-              custom automations powered by <span className="font-semibold">AI + Zapier</span>.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-5 mt-8">
-              <Link href="#contact" className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full px-8 py-4 text-center font-medium shadow-xl shadow-blue-500/20 hover:shadow-blue-600/40 transition-all duration-300 hover:-translate-y-1">
-                Let's Work Together
-              </Link>
-              <Link href="#services" className="bg-white border border-gray-200 text-gray-800 rounded-full px-8 py-4 text-center font-medium shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                Explore Services
-              </Link>
-            </div>
-            
-            <div className="mt-24 text-center w-full">
-              <span className="text-gray-500 font-medium">Explore</span>
-              <div className="flex justify-center mt-3">
-                <svg className="w-7 h-7 animate-bounce text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <main className="flex-1">
+        {/* Hero Section */}
+        <AnimatedHero 
+          badge="Automate More Simple"
+          title="Automate Your Business"
+          subtitle="Save Hours Every Week"
+          description="Streamline operations, reduce manual tasks, and scale faster with custom automations powered by AI + Zapier."
+        />
 
-      {/* Services Section */}
-      <section id="services" className="py-24 relative">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-blue-50/50 rounded-full blur-3xl -z-10"></div>
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-700 to-blue-500 text-transparent bg-clip-text">Our Services</h2>
-          <p className="text-gray-600 text-center mb-20 max-w-3xl mx-auto text-lg">
-            We create custom automations that save you time and money
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-              <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 6V12M12 12V18M12 12H18M12 12H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold mb-3">Zapier Integration</h3>
-              <p className="text-gray-600 group-hover:text-gray-700 transition-colors">Connect your favorite apps and automate workflows seamlessly</p>
-            </div>
-            
-            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-              <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold mb-3">AI Automation</h3>
-              <p className="text-gray-600 group-hover:text-gray-700 transition-colors">Leverage AI to streamline decision-making processes</p>
-            </div>
-            
-            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-              <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold mb-3">Custom Solutions</h3>
-              <p className="text-gray-600 group-hover:text-gray-700 transition-colors">Tailored automation strategies for your unique business needs</p>
-            </div>
+        {/* Services Section */}
+        <ConsistentBackground className="py-20" intensity="light" showWaveDivider={true}>
+          <div id="services" className="container">
+            <OurServices />
           </div>
-        </div>
-      </section>
+        </ConsistentBackground>
 
-      {/* Benefits Section */}
-      <section id="benefits" className="py-24 bg-gradient-to-b from-white to-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-700 to-blue-500 text-transparent bg-clip-text">Benefits</h2>
-          <p className="text-gray-600 text-center mb-20 max-w-3xl mx-auto text-lg">
-            Our clients experience significant improvements in efficiency and cost savings
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div className="flex items-start gap-5 bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl text-white shadow-md">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Save Time</h3>
-                <p className="text-gray-600">Reduce manual tasks and focus on what matters most to grow your business</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-5 bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl text-white shadow-md">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Reduce Costs</h3>
-                <p className="text-gray-600">Lower operational expenses through efficient processes and automation</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-5 bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl text-white shadow-md">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 11l3 3L22 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Eliminate Errors</h3>
-                <p className="text-gray-600">Automated workflows minimize human error and ensure consistency</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-5 bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl text-white shadow-md">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Scale Operations</h3>
-                <p className="text-gray-600">Grow your business without proportionally increasing workload</p>
-              </div>
-            </div>
+        {/* Benefits Section */}
+        <ConsistentBackground className="py-20" intensity="medium">
+          <div id="benefits" className="container">
+            <BenefitsSection />
           </div>
-        </div>
-      </section>
+        </ConsistentBackground>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-24 bg-white relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-blue-50 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-70"></div>
-        <div className="absolute left-0 bottom-0 w-96 h-96 bg-blue-50 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl opacity-70"></div>
-        
-        <div className="max-w-4xl mx-auto px-6 relative">
-          <h2 className="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-700 to-blue-500 text-transparent bg-clip-text">Contact Us</h2>
-          <p className="text-gray-600 text-center mb-16 max-w-2xl mx-auto text-lg">
-            Ready to transform your business operations? Get in touch today.
-          </p>
-          
-          <div className="bg-white p-10 rounded-3xl border border-gray-100 shadow-2xl">
-            <form className="space-y-6">
+        {/* Contact Section */}
+        <ConsistentBackground className="py-20" intensity="light">
+          <div id="contact" className="container mx-auto px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  required
-                  placeholder="Your name"
-                />
+                <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20">Contact Us</Badge>
               </div>
-              
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  required
-                  placeholder="your.email@example.com"
-                />
+              <div className="space-y-2">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-black">Ready to Automate?</h2>
+                <p className="max-w-[600px] text-slate-600 md:text-lg mx-auto">
+                  Fill out the form below and we'll contact you to discuss your automation needs
+                </p>
               </div>
-              
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  required
-                  placeholder="Tell us about your project..."
-                ></textarea>
-              </div>
-              
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-1"
-              >
-                Send Message
-              </button>
-            </form>
+            </div>
+            <div className="mx-auto max-w-lg">
+              <ContactForm />
+            </div>
           </div>
-        </div>
-      </section>
+        </ConsistentBackground>
+      </main>
 
       {/* Footer */}
-      <footer className="bg-gray-50 py-16 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-8 md:mb-0">
-              <div className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-cyan-500 text-transparent bg-clip-text mb-3">JET</div>
-              <p className="text-gray-500 text-sm max-w-md">
-                Automate your business operations with custom solutions powered by AI and Zapier integration.
+      <ConsistentBackground className="py-16" intensity="strong">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center mb-4">
+                <span className="font-bold text-2xl text-black">JET</span>
+              </div>
+              <p className="text-slate-700 max-w-xs mb-6">
+                Streamline your business operations with custom automations that save time and reduce costs.
               </p>
+              <div className="flex space-x-4">
+                {['facebook', 'twitter', 'linkedin'].map((social) => (
+                  <Link 
+                    key={social}
+                    href="#" 
+                    className="text-slate-600 hover:text-primary transition-colors"
+                    aria-label={`${social} link`}
+                  >
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/80 shadow-sm hover:shadow-md transition-all">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        {social === 'facebook' && (
+                          <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
+                        )}
+                        {social === 'twitter' && (
+                          <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                        )}
+                        {social === 'linkedin' && (
+                          <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clipRule="evenodd" />
+                        )}
+                      </svg>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:space-x-12">
-              <Link href="#services" className="text-gray-600 hover:text-blue-600 transition-colors">Services</Link>
-              <Link href="#benefits" className="text-gray-600 hover:text-blue-600 transition-colors">Benefits</Link>
-              <Link href="#contact" className="text-gray-600 hover:text-blue-600 transition-colors">Contact</Link>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Services</h3>
+              <ul className="space-y-2">
+                {["Zapier Workflows", "AI Integration", "Process Automation", "Custom Solutions"].map((item) => (
+                  <li key={item}>
+                    <Link href="#services" className="text-slate-700 hover:text-primary transition-colors">
+                      {item}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Company</h3>
+              <ul className="space-y-2">
+                {[
+                  { label: "About", href: "#" },
+                  { label: "Contact", href: "#contact" },
+                  { label: "Blog", href: "#" }
+                ].map((item) => (
+                  <li key={item.label}>
+                    <Link href={item.href} className="text-slate-700 hover:text-primary transition-colors">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-          <div className="border-t border-gray-200 mt-10 pt-10 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm mb-4 md:mb-0">
-              © {new Date().getFullYear()} Jet Automation. All rights reserved.
+          
+          <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-slate-600 text-sm">
+              © {new Date().getFullYear()} JET Automation. All rights reserved.
             </p>
-            <div className="flex space-x-6">
-              <Link href="#" className="text-gray-500 hover:text-blue-600 transition-colors text-sm">
-                Terms
-              </Link>
-              <Link href="#" className="text-gray-500 hover:text-blue-600 transition-colors text-sm">
-                Privacy
-              </Link>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link href="#" className="text-xs text-slate-600 hover:text-primary">Privacy Policy</Link>
+              <Link href="#" className="text-xs text-slate-600 hover:text-primary">Terms of Service</Link>
             </div>
           </div>
         </div>
-      </footer>
-    </main>
+      </ConsistentBackground>
+    </div>
   );
-} 
+}
