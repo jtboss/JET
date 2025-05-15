@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npm run build",
+  "framework": "nextjs",
+  "env": {
+    "RESEND_API_KEY": "re_7ySnymjj_43xzDuSLXQmkjyUYKqYMSK2Y",
+    "ADMIN_EMAIL": "hey.jjedwards@gmail.com"
+  }
+} 
